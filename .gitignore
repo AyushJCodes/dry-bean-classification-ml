@@ -1,0 +1,50 @@
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Python & Testing
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Model artifacts (binary weights - regenerated via python src/train.py)
+models/*.joblib
+models/*.pkl
+!models/README.md
+
+# Large dataset archives & unzipped folders (downloaded via python src/data_preprocessing.py)
+data/*.csv
+data/*.xlsx
+data/*.arff
+data/*.zip
+data/DryBeanDataset/
+!data/README.md
+
+# Environment & Secrets
+.env
+*.env
+
+# Logs
+*.log

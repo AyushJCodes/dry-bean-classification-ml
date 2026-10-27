@@ -1,0 +1,116 @@
+{
+  "model_comparison": {
+    "Logistic Regression": {
+      "accuracy": 0.9192,
+      "precision_weighted": 0.9199,
+      "recall_weighted": 0.9192,
+      "f1_weighted": 0.9193,
+      "f1_macro": 0.9298
+    },
+    "Decision Tree": {
+      "accuracy": 0.8963,
+      "precision_weighted": 0.8965,
+      "recall_weighted": 0.8963,
+      "f1_weighted": 0.8963,
+      "f1_macro": 0.9113
+    },
+    "Random Forest": {
+      "accuracy": 0.9162,
+      "precision_weighted": 0.9163,
+      "recall_weighted": 0.9162,
+      "f1_weighted": 0.9161,
+      "f1_macro": 0.9284
+    },
+    "K-Nearest Neighbors": {
+      "accuracy": 0.914,
+      "precision_weighted": 0.915,
+      "recall_weighted": 0.914,
+      "f1_weighted": 0.9142,
+      "f1_macro": 0.9263
+    },
+    "Support Vector Machine": {
+      "accuracy": 0.9228,
+      "precision_weighted": 0.9234,
+      "recall_weighted": 0.9228,
+      "f1_weighted": 0.923,
+      "f1_macro": 0.9347
+    },
+    "Gradient Boosting": {
+      "accuracy": 0.9151,
+      "precision_weighted": 0.9152,
+      "recall_weighted": 0.9151,
+      "f1_weighted": 0.9151,
+      "f1_macro": 0.926
+    },
+    "Tuned Random Forest": {
+      "accuracy": 0.9173,
+      "precision_weighted": 0.9174,
+      "recall_weighted": 0.9173,
+      "f1_weighted": 0.9172,
+      "f1_macro": 0.9292
+    },
+    "Voting Ensemble (RF+SVM+GB)": {
+      "accuracy": 0.9225,
+      "precision_weighted": 0.9228,
+      "recall_weighted": 0.9225,
+      "f1_weighted": 0.9225,
+      "f1_macro": 0.9329
+    }
+  },
+  "cross_validation": {
+    "Logistic Regression": {
+      "cv_mean": 0.9236,
+      "cv_std": 0.002,
+      "cv_scores": [
+        0.9252,
+        0.9216,
+        0.9225,
+        0.922,
+        0.9266
+      ]
+    },
+    "Random Forest": {
+      "cv_mean": 0.9231,
+      "cv_std": 0.0022,
+      "cv_scores": [
+        0.9262,
+        0.9206,
+        0.9225,
+        0.9211,
+        0.9252
+      ]
+    },
+    "Support Vector Machine": {
+      "cv_mean": 0.9314,
+      "cv_std": 0.0035,
+      "cv_scores": [
+        0.9354,
+        0.9285,
+        0.9275,
+        0.9299,
+        0.9358
+      ]
+    },
+    "Gradient Boosting": {
+      "cv_mean": 0.9269,
+      "cv_std": 0.0022,
+      "cv_scores": [
+        0.9271,
+        0.9262,
+        0.9275,
+        0.9234,
+        0.9303
+      ]
+    }
+  },
+  "best_model": "Voting Ensemble (RF+SVM+GB)",
+  "best_params": {
+    "n_estimators": "200",
+    "min_samples_split": "4",
+    "min_samples_leaf": "1",
+    "max_features": "log2",
+    "max_depth": "14",
+    "bootstrap": "True"
+  },
+  "best_cv_score": 0.9245
+}
