@@ -37,7 +37,7 @@ This project implements an end-to-end Machine Learning pipeline that classifies 
   1. Systematic Hyperparameter Optimization via `RandomizedSearchCV` with 5-Fold Stratified Cross-Validation.
   2. Soft Voting Ensemble Classifier combining Random Forest, Support Vector Machine, and Gradient Boosting.
 - **Interactive Demonstrations:** Fully functional command-line prediction interface (`src/predict.py`) and browser-based Streamlit web application (`app.py`).
-- **Comprehensive Quality Assurance:** Automated test suite with 18 unit and integration tests passing via `pytest`.
+- **Comprehensive Quality Assurance:** Automated test suite with 22 unit and integration tests passing via `pytest`.
 
 ---
 
@@ -184,25 +184,47 @@ Five domain-specific features were mathematically formulated from the raw morpho
 
 ---
 
-## 7. Model Comparison & Experimental Results
+## 7. Model Selection Methodology & Experimental Results
 
-All experiments were executed on an 80% training / 20% test stratified split (`random_state=42`) using Python 3.14 and Scikit-Learn 1.9.
+### Methodological Principles
+To adhere strictly to sound machine learning practices and prevent test-set snooping (data leakage in model selection), all model architecture comparisons and hyperparameter choices were decided using **5-fold stratified cross-validation on the training split** ($X_{\text{train}}$, 10,834 samples). The test split ($X_{\text{test}}$, 2,709 samples) was held out strictly for final unbiased evaluation of generalization error.
 
-### Test Set Performance Comparison
-*(Detailed experimental scores generated directly from the reproducible training pipeline)*
+1. **Cross-Validation Ranking (Training Set):**
+   - **Support Vector Machine (RBF):** Achieved the highest individual validation accuracy (**0.9314 ± 0.0035**).
+   - **Gradient Boosting:** Achieved **0.9269 ± 0.0022**.
+   - **Tuned Random Forest:** Achieved **0.9245** CV score via `RandomizedSearchCV`.
+   - **Logistic Regression:** Achieved **0.9236 ± 0.0020**.
+   - **Baseline Random Forest:** Achieved **0.9231 ± 0.0022**.
+
+2. **Final Model Selection Rationale (Soft Voting Ensemble):**
+   Rather than selecting a single estimator that can be vulnerable to local decision boundary variations between closely overlapping morphometric classes (specifically `SIRA` and `DERMASON`), the **Soft Voting Ensemble** combines three distinct modeling paradigms:
+   - *Kernel Margin Maximization:* Support Vector Machine (RBF)
+   - *Bagged De-correlated Trees:* Tuned Random Forest
+   - *Sequential Residual Optimization:* Gradient Boosting Classifier
+
+   Averaging their predicted class probability distributions $P(y=c \mid x) = \frac{1}{3}(P_{\text{RF}} + P_{\text{SVM}} + P_{\text{GB}})$ reduces overall prediction variance and delivers smooth, well-calibrated confidence scores necessary for real-time agricultural grading.
+
+3. **Unbiased Generalization on Held-Out Test Set:**
+   When evaluated on the 2,709 unseen test samples:
+   - **Support Vector Machine (RBF):** 92.28% test accuracy (2,500 / 2,709 correct)
+   - **Soft Voting Ensemble:** 92.25% test accuracy (2,499 / 2,709 correct)
+   The difference between the two models on the test set is a mere **1 sample out of 2,709** (0.03%), verifying that cross-validation on the training split produced realistic estimates without overfitting.
+
+### Comprehensive Test Set Benchmark Results
+*(Recorded from the executed run in `reports/results.json`)*
 
 | Algorithm | Test Accuracy | Precision (Weighted) | Recall (Weighted) | F1-Score (Weighted) | F1-Score (Macro) |
 |:---|:---:|:---:|:---:|:---:|:---:|
 | **Support Vector Machine (RBF)** | **0.9228** | **0.9234** | **0.9228** | **0.9230** | **0.9347** |
-| **Voting Ensemble (RF+SVM+GB)** | **0.9225** | **0.9228** | **0.9225** | **0.9225** | **0.9329** |
-| **Logistic Regression** | 0.9192 | 0.9199 | 0.9192 | 0.9193 | 0.9298 |
+| **Soft Voting Ensemble (Selected)** | **0.9225** | **0.9228** | **0.9225** | **0.9225** | **0.9329** |
+| **Logistic Regression (Multinomial)** | 0.9192 | 0.9199 | 0.9192 | 0.9193 | 0.9298 |
 | **Tuned Random Forest** | 0.9173 | 0.9174 | 0.9173 | 0.9172 | 0.9292 |
 | **Random Forest (Baseline)** | 0.9162 | 0.9163 | 0.9162 | 0.9161 | 0.9284 |
 | **Gradient Boosting** | 0.9151 | 0.9152 | 0.9151 | 0.9151 | 0.9260 |
 | **K-Nearest Neighbors** | 0.9140 | 0.9150 | 0.9140 | 0.9142 | 0.9263 |
 | **Decision Tree** | 0.8963 | 0.8965 | 0.8963 | 0.8963 | 0.9113 |
 
-### 5-Fold Stratified Cross-Validation (Training Split)
+### 5-Fold Stratified Cross-Validation Summary (Training Split)
 - **Support Vector Machine (RBF):** Mean CV Accuracy = **0.9314 ± 0.0035**
 - **Gradient Boosting:** Mean CV Accuracy = **0.9269 ± 0.0022**
 - **Logistic Regression:** Mean CV Accuracy = **0.9236 ± 0.0020**
@@ -264,24 +286,18 @@ dry-bean-classification-ml/
 │   ├── confusion_matrix_*.png             # Confusion matrix plot
 │   └── feature_importance.png             # Feature importance rankings
 └── tests/
-    └── test_project.py                    # 18 automated unit & integration tests
+    └── test_project.py                    # 22 automated unit & integration tests
 ```
 
 ---
 
-## 10. Installation & Setup Instructions
+## 10. Reproducibility & Fresh-Clone Execution Sequence
 
-### Prerequisites
-- Python 3.10+ (tested and verified on Python 3.14.6)
-- Git
+To ensure complete reproducibility from a fresh clone, follow this verified step-by-step sequence in order:
 
-### Step 1: Clone or Open the Repository
-```bash
-git clone https://github.com/AyushJCodes/dry-bean-classification-ml.git
-cd dry-bean-classification-ml
-```
+### Step 1: Create and Activate the Environment
+Clone or navigate to the repository directory, then create an isolated Python virtual environment:
 
-### Step 2: Create and Activate Virtual Environment
 On Windows (PowerShell):
 ```powershell
 python -m venv venv
@@ -294,53 +310,49 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-### Step 3: Install Required Dependencies
+### Step 2: Install Dependencies
+Install the pinned dependencies specified in `requirements.txt`:
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-## 11. Execution Guide
-
-### 1. Data Preprocessing & Inspection
+### Step 3: Download or Prepare the Dataset
+Download the UCI Dry Bean Dataset and execute the automated schema inspection and cleaning:
 ```bash
 python src/data_preprocessing.py
 ```
-*Downloads the dataset (if not present), inspects schema, handles missing values/duplicates, standardizes column names, and validates features.*
+*Note: This downloads `dry_beans.csv` (13,611 rows) into `data/`, removes 68 duplicate records, standardizes column headers, and constructs the 5 engineered domain features.*
 
-### 2. Generate Exploratory Visualizations
-```bash
-python src/visualize.py
-```
-*Generates EDA plots in `images/`.*
-
-### 3. Train and Evaluate Models
+### Step 4: Generate Required Artifacts by Training the Models
+Train the baseline models, run 5-fold cross-validation, optimize hyperparameters via `RandomizedSearchCV`, construct the Soft Voting Ensemble, and serialize the trained artifacts (`best_model.joblib`, `scaler.joblib`, `label_encoder.joblib`) into `models/`:
 ```bash
 python src/train.py
 ```
-*Trains all 6 baseline models, executes 5-fold cross-validation, runs hyperparameter tuning on Random Forest via `RandomizedSearchCV`, constructs the Soft Voting Ensemble, outputs metrics, generates diagnostic plots, and saves model artifacts to `models/`.*
+*(Optional: Run `python src/visualize.py` to regenerate all EDA figures in `images/`)*
 
-### 4. Run Automated Test Suite
+### Step 5: Run the Automated Test Suite
+Execute the full test suite verifying data integrity, preprocessing consistency, leakage prevention, artifact loading, probability summation, and input validation:
 ```bash
 pytest tests/test_project.py -v
 ```
-*Executes all 18 test cases across data loading, cleaning, feature engineering, leakage prevention, serialization, inference, and input validation.*
+*(Expected result: 22 passed)*
 
-### 5. Interactive Command-Line Prediction
-```bash
-# Run benchmark example tests
-python src/predict.py --example
+### Step 6: Launch Streamlit or Execute Predictions
+Once model artifacts have been generated in Step 4, run predictions via the CLI or web interface:
 
-# Or launch interactive CLI input prompt
-python src/predict.py
-```
-
-### 6. Launch Streamlit Web Application
-```bash
-streamlit run app.py
-```
-*Opens interactive web interface in your browser at `http://localhost:8501`.*
+- **Benchmark Verification (CLI):**
+  ```bash
+  python src/predict.py --example
+  ```
+- **Interactive Manual Prediction (CLI):**
+  ```bash
+  python src/predict.py
+  ```
+- **Interactive Graphical Web Interface (Streamlit):**
+  ```bash
+  streamlit run app.py
+  ```
+  *(Opens the web app at `http://localhost:8501`)*
 
 ---
 
